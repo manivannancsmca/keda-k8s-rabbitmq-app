@@ -1,3 +1,45 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: producer-service
+  rabbitmq:
+    host: ${RABBITMQ_HOST:rabbitmq.messaging.svc.cluster.local}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:admin}
+    password: ${RABBITMQ_PASSWORD:admin123}
+    virtual-host: /
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+      retry:
+        enabled: true
+        initial-interval: 1000ms
+        max-attempts: 3
+        multiplier: 2
+
+messaging:
+  exchange:
+    name: order.exchange
+    type: direct
+    durable: true
+  queue:
+    name: order.queue
+    durable: true
+  routing:
+    key: order.created
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.amqp: INFO
